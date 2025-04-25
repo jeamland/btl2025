@@ -16,6 +16,17 @@ DATA_DIR = Path("data")
 SENATE_DATA = DATA_DIR / "senate-candidates.csv"
 REPS_DATA = DATA_DIR / "house-candidates.csv"
 
+STATE_FULL_NAMES = {
+    "ACT": "Australian Capital Territory",
+    "NSW": "New South Wales",
+    "NT": "Northern Territory",
+    "QLD": "Queensland",
+    "SA": "South Australia",
+    "TAS": "Tasmania",
+    "VIC": "Victoria",
+    "WA": "West Australia",
+}
+
 start = time.time()
 
 
@@ -23,7 +34,7 @@ def classlist(*classes: str) -> list[str]:
     return [*itertools.chain.from_iterable(cls.split() for cls in classes)]
 
 
-def navbar(state: str, division: str) -> SimpleDoc:
+def navbar(title: str, reset_button: bool) -> SimpleDoc:
     doc = Doc()
 
     with doc.tag("nav", klass="bg-white border-gray-200 print:hidden"):
@@ -46,31 +57,32 @@ def navbar(state: str, division: str) -> SimpleDoc:
                 "div",
                 klass="flex md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse",
             ):
-                doc.line(
-                    "button",
-                    "Reset",
-                    klass="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center",
-                )
+                if reset_button:
+                    doc.line(
+                        "button",
+                        "Reset",
+                        klass="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center",
+                    )
             with doc.tag(
                 "div",
                 klass="items-center justify-between hidden w-full md:flex md:w-auto md:order-1",
             ):
                 doc.line(
                     "span",
-                    f"{division}, {state}",
+                    title,
                     klass="flex flex-col text-xl font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white",
                 )
 
     return doc
 
 
-def ballot(state: str, division: str, reps: SimpleDoc, senate: SimpleDoc) -> SimpleDoc:
+def page(title: str, body: SimpleDoc, reset_button: bool) -> SimpleDoc:
     doc = Doc()
     doc.asis("<!DOCTYPE html>")
 
     with doc.tag("html"):
         with doc.tag("head"):
-            doc.line("title", f"{division}, {state}")
+            doc.line("title", title)
             doc.stag("meta", charset="UTF-8")
             doc.stag(
                 "meta",
@@ -83,32 +95,40 @@ def ballot(state: str, division: str, reps: SimpleDoc, senate: SimpleDoc) -> Sim
         with doc.tag(
             "body", klass="font-sans text-slate-800 bg-gray-50 print:bg-white!"
         ):
-            doc.asis(navbar(state, division).getvalue())
-            with doc.tag("div", klass="grid place-items-center my-[2em]"):
-                with doc.tag(
-                    "div",
-                    id="ballot-reps",
-                    klass=(
-                        "relative grid items-center place-items-center "
-                        "justify-center bg-green-50 shadow-sm border border-slate-200 "
-                        "divide-solid divide-slate-200 divide-y-1 "
-                        "min-w-[240px] max-w-[100em] print:bg-white!"
-                    ),
-                ):
-                    doc.asis(reps.getvalue())
-                doc.asis(senate.getvalue())
-            with doc.tag(
-                "div",
-                klass=(
-                    "float absolute top-[4em] w-screen "
-                    "rotate-315 opacity-30 "
-                    "text-gray-500 text-5xl text-center "
-                    "hidden print:block!"
-                ),
-            ):
-                doc.asis("THIS IS NOT AN<br/>OFFICIAL BALLOT PAPER")
+            doc.asis(navbar(title, reset_button).getvalue())
+            doc.asis(body.getvalue())
 
     return doc
+
+
+def ballot(state: str, division: str, reps: SimpleDoc, senate: SimpleDoc) -> SimpleDoc:
+    doc = Doc()
+
+    with doc.tag("div", klass="grid place-items-center my-[2em]"):
+        with doc.tag(
+            "div",
+            id="ballot-reps",
+            klass=(
+                "relative grid items-center place-items-center "
+                "justify-center bg-green-50 shadow-sm border border-slate-200 "
+                "divide-solid divide-slate-200 divide-y-1 "
+                "min-w-[240px] max-w-[100em] print:bg-white!"
+            ),
+        ):
+            doc.asis(reps.getvalue())
+        doc.asis(senate.getvalue())
+    with doc.tag(
+        "div",
+        klass=(
+            "float absolute top-[4em] w-screen "
+            "rotate-315 opacity-30 "
+            "text-gray-500 text-5xl text-center "
+            "hidden print:block!"
+        ),
+    ):
+        doc.asis("THIS IS NOT AN<br/>OFFICIAL BALLOT PAPER")
+
+    return page(f"{state}, {division}", doc, True)
 
 
 def senate_ballot(candidates: list[dict[str, str]]) -> SimpleDoc:
@@ -171,6 +191,8 @@ senate_ballots = {
     state: senate_ballot(candidates) for state, candidates in senate_candidates.items()
 }
 
+all_divisions = defaultdict(list)
+
 with REPS_DATA.open() as data:
     last_state = None
     last_division = None
@@ -183,17 +205,18 @@ with REPS_DATA.open() as data:
         if last_division is not None and division != last_division:
             assert last_state is not None
             assert doc is not None
-            page = ballot(last_state, last_division, doc, senate_ballots[last_state])
+            content = ballot(last_state, last_division, doc, senate_ballots[last_state])
 
             path = output_dir / last_state.lower() / f"{last_division.lower()}.html"
             path.parent.mkdir(exist_ok=True, parents=True)
 
-            path.write_text(indent(page.getvalue()))
+            path.write_text(indent(content.getvalue()))
 
         if last_division is None or division != last_division:
             doc = Doc()
             last_state = state
             last_division = division
+            all_divisions[state].append(division)
 
         assert doc is not None
 
@@ -220,5 +243,46 @@ with REPS_DATA.open() as data:
                 row["partyBallotName"],
                 klass="ml-[5em] float-right text-sm",
             )
+
+doc = Doc()
+
+with doc.tag(
+    "div",
+    klass=(
+        "relative grid items-center place-items-center "
+        "justify-center shadow-sm border border-slate-200 "
+        "divide-solid divide-slate-200 divide-y-1 "
+        "min-w-[240px] print:bg-white!"
+    ),
+):
+    with doc.tag("ul", klass="list-disc"):
+        for state in all_divisions:
+            with doc.tag("li"):
+                doc.line("a", STATE_FULL_NAMES[state], href=f"/{state.lower()}")
+
+index_path = output_dir / "index.html"
+index_path.write_text(page("", doc, False).getvalue())
+
+for state, divisions in all_divisions.items():
+    doc = Doc()
+
+    with doc.tag(
+        "div",
+        klass=(
+            "relative grid items-center place-items-center "
+            "justify-center shadow-sm border border-slate-200 "
+            "divide-solid divide-slate-200 divide-y-1 "
+            "min-w-[240px] print:bg-white!"
+        ),
+    ):
+        with doc.tag("ul", klass="list-disc"):
+            for division in divisions:
+                with doc.tag("li"):
+                    doc.line(
+                        "a", division, href=f"/{state.lower()}/{division.lower()}.html"
+                    )
+
+    index_path = output_dir / state.lower() / "index.html"
+    index_path.write_text(page(STATE_FULL_NAMES[state], doc, False).getvalue())
 
 print(f"content generated in {time.time() - start:0.3f} seconds")
