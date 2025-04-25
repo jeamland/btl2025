@@ -6,11 +6,27 @@
   },
   "scripts": {
     "build": "/bin/bash ./build.sh",
-    "fetch-data": "/bin/bash ./fetch-data.sh"
+    "dev": "npm run setup; nodemon `which http-server` -c-1 ./output",
+    "fetch-data": "/bin/bash ./fetch-data.sh",
+    "setup": "npm install; python -m pip install '.[dev]'; npm run fetch-data"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.1",
     "eslint": "^9.25.1",
+    "http-server": "^14.1.1",
+    "nodemon": "^3.1.10",
     "typescript-eslint": "^8.31.0"
+  },
+  "nodemonConfig": {
+    "ext": "ts,py",
+    "watch": [
+      "src/"
+    ],
+    "ignore": [
+      "output/**"
+    ],
+    "events": {
+      "start": "npm run build"
+    }
   }
 }
