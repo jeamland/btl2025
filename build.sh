@@ -1,6 +1,6 @@
 #!/bin/bash
 
 python3 src/processor.py
-tailwindcss -i css/input.css -o output/site.css
+npx @tailwindcss/cli -i css/input.css -o output/site.css
 tsc src/*.ts --lib es2015,dom --outDir output
 cp -vR img output
