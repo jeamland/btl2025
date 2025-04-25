@@ -48,5 +48,5 @@ jobs:
           chmod go-rwx key known_hosts
           rsync -avz -e "ssh -i key -o UserKnownHostsFile=known_hosts" output/ btl2025@flonk.oddlynamed.org:.
         env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+          SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.KNOWN_HOSTS }}
