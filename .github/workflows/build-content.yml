@@ -43,11 +43,10 @@ jobs:
       - name: Deploy site
         run: |
           mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
-          echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
-          ls -lR ~/.ssh
-          sudo chmod -R 600 ~/.ssh
-          rsync -avz output/ btl2025@flonk.oddlynamed.org:.
+          echo "$SSH_PRIVATE_KEY" > key
+          echo "$SSH_KNOWN_HOSTS" > known_hosts
+          chmod go-rwx key known_hosts
+          rsync -avz -e "ssh -i key -o UserKnownHostsFile=known_hosts" output/ btl2025@flonk.oddlynamed.org:.
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
