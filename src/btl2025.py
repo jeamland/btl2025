@@ -89,7 +89,8 @@ def page(title: str, body: SimpleDoc, reset_button: bool) -> SimpleDoc:
                 name="viewport",
                 content="width=device-width, initial-scale=1.0",
             )
-            doc.stag("link", href="../site.css", rel="stylesheet")
+            doc.stag("link", rel="icon", type="image/png", href="/img/icon.png")
+            doc.stag("link", rel="stylesheet", href="../site.css")
             doc.line("script", "", src="../ballot.js", defer="")
 
         with doc.tag(
