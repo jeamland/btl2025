@@ -1,0 +1,13 @@
+[project]
+name = "aec2025"
+version = "0.1"
+
+[build-system]
+requires = ["hatchling >= 1.26"]
+build-backend = "hatchling.build"
+
+[tool.mypy]
+strict = true
+
+[tool.ruff.lint.isort]
+from-first = true

@@ -1,0 +1,6 @@
+@import "tailwindcss";
+@source "../output";
+
+@theme {
+  --font-sans: "Helvetica Neue", "Helvetia", "Arial", "sans-serif";
+}

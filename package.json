@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "typescript": "^5.8.3"
+  },
+  "scripts": {
+    "build": "/bin/bash ./build.sh",
+    "fetch-data": "/bin/bash ./fetch-data.sh"
+  }
+}
