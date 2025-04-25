@@ -12,7 +12,7 @@ const errorClasses = ["border-red-300", "active:border-red-300", "text-red-300"]
 
 function ballotManager(ballot: HTMLElement) {
     let maxPositions = 0;
-    let inputs: HTMLInputElement[] = [];
+    const inputs: HTMLInputElement[] = [];
 
     ballot.querySelectorAll("input").forEach((input) => {
         input.addEventListener("change", (event) => {
@@ -37,10 +37,10 @@ function ballotManager(ballot: HTMLElement) {
             inputs.splice(value - 1, 0, target);
             console.log(inputs.map((i) => i.name));
 
-            let rows: HTMLElement[] = [];
+            const rows: HTMLElement[] = [];
 
             inputs.forEach((i, idx) => {
-                let value = idx + 1;
+                const value = idx + 1;
                 console.log(i.name, value);
 
                 if (i.value != value.toString()) {
