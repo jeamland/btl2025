@@ -1,5 +1,5 @@
 [project]
-name = "aec2025"
+name = "btl2025"
 version = "0.1"
 
 dependencies = ["yattag~=1.16"]
@@ -16,7 +16,7 @@ requires = ["hatchling >= 1.26"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build]
-include = ["src/aec2025.py"]
+include = ["src/btl2025.py"]
 
 [tool.mypy]
 strict = true
