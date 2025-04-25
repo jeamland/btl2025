@@ -31,3 +31,19 @@ jobs:
         with:
           name: site-content
           path: output
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: site-content
+      - name: Deploy site
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod -R 600 ~/.ssh
+          rsync -avz output/ btl2025@flonk.oddlynamed.org:.
