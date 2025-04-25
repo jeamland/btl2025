@@ -4,5 +4,5 @@ Try running the following, assuming you have node/npm installed and a Python env
 enabled that's amenable to having stuff installed in it:
 
 ```
-$ npm run dev
+npm run dev
 ```
