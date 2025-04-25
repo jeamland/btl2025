@@ -45,7 +45,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
           echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
-          chmod -R 600 ~/.ssh
+          sudo chmod -R 600 ~/.ssh
           rsync -avz output/ btl2025@flonk.oddlynamed.org:.
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
