@@ -2,9 +2,21 @@
 name = "aec2025"
 version = "0.1"
 
+dependencies = ["yattag~=1.16"]
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "ruff",
+    "mypy",
+]
+
 [build-system]
 requires = ["hatchling >= 1.26"]
 build-backend = "hatchling.build"
+
+[tool.hatch.build]
+include = ["src/aec2025.py"]
 
 [tool.mypy]
 strict = true
