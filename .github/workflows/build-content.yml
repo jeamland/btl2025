@@ -47,3 +47,6 @@ jobs:
           echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
           chmod -R 600 ~/.ssh
           rsync -avz output/ btl2025@flonk.oddlynamed.org:.
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
